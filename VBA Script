@@ -1,0 +1,118 @@
+Sub multiYearStock()
+'declare variables
+    Dim ticket As String
+    Dim open_price As Double
+    Dim close_price As Double
+    Dim volume As Double
+    Dim LastRow As Double
+    Dim LastCol As Double
+    Dim t As Double
+    Dim lastR As Double
+    Dim rng As Range
+    
+ 
+    'loop through sheets
+    For Each sht In Worksheets
+    'MsgBox sht.Name
+    
+   'counter for summary totals
+    t = 2
+    
+    'Add headers
+    sht.Range("I1").Value = "Ticker"
+    sht.Range("J1").Value = "Yearly Change"
+    sht.Range("K1").Value = "Percentage Change"
+    sht.Range("L1").Value = "Total Stock Volume"
+    
+            'Assign ticker
+            ticker = sht.Range("A2").Value
+            
+            'Assign open price
+            open_price = sht.Range("C2").Value
+      
+            'Assign volume
+            volume = sht.Range("G2").Value
+            
+            'Find last row
+            LastRow = sht.Cells(Rows.Count, 1).End(xlUp).Row
+            For i = 2 To LastRow
+            
+                If sht.Cells(i + 1, 1).Value = ticker Then
+                    volume = volume + sht.Cells(i + 1, 7).Value
+                 
+                    
+                Else
+                   
+                    sht.Cells(t, 9).Value = ticker
+                    close_price = sht.Cells(i, 6).Value
+                    
+                    sht.Cells(t, 10).Value = (close_price - open_price)
+                    
+                    If open_price = 0 Then
+                    
+                        sht.Cells(t, 11).Value = 0
+                    Else
+                        sht.Cells(t, 11).Value = (close_price - open_price) / open_price
+                        sht.Cells(t, 11).NumberFormat = "0.00%"
+                    
+                    End If
+                        
+                    If sht.Cells(t, 10).Value > 0 Then
+                            sht.Cells(t, 10).Interior.ColorIndex = 4
+                    
+                    ElseIf sht.Cells(t, 10).Value < 0 Then
+                            sht.Cells(t, 10).Interior.ColorIndex = 3
+                            
+                    'Find greatest changes
+                    sht.Range("O2").Value = "Greatest % Increase"
+                    sht.Range("O3").Value = "Greatest % Decrease"
+                    sht.Range("O4").Value = "Greatest Total Volume"
+                    sht.Range("P1").Value = "Ticker"
+                    sht.Range("Q1").Value = "Volume"
+                    
+                
+                    'Get greatest percent increase
+                    
+                        lastR = sht.Cells(1, 9).End(xlDown).Row
+
+                    
+                    sht.Range(sht.Cells(1, 9), sht.Cells(lastR, 12)).Sort sht.Range("K1"), xlDescending, , , , , , xlYes
+                    sht.Cells(2, 16).Value = sht.Cells(2, 9).Value
+                    sht.Cells(2, 17).Value = sht.Cells(2, 11).Value
+                    sht.Cells(2, 17).NumberFormat = "0.00%"
+                                   
+                    'Get the greatest decrease
+                    sht.Range(sht.Cells(1, 9), sht.Cells(lastR, 12)).Sort sht.Range("K1"), xlAscending, , , , , , xlYes
+                    sht.Cells(3, 16).Value = sht.Cells(2, 9).Value
+                    sht.Cells(3, 17).Value = sht.Cells(2, 11).Value
+                    sht.Cells(3, 17).NumberFormat = "0.00%"
+                    
+                    'Get the highest Total Stock Volume
+                    sht.Range(sht.Cells(1, 9), sht.Cells(lastR, 12)).Sort sht.Range("L1"), xlDescending, , , , , , xlYes
+                    sht.Cells(4, 16).Value = sht.Cells(2, 9).Value
+                    sht.Cells(4, 17).Value = sht.Cells(2, 12).Value
+                    sht.Cells(4, 17).NumberFormat = "0.00"
+                    End If
+                    
+                    sht.Cells(t, 12).Value = volume
+                                      
+                    t = t + 1
+                    
+                   ticker = sht.Cells(i + 1, 1).Value
+                   volume = sht.Cells(i + 1, 7).Value
+                   open_price = sht.Cells(i + 1, 3).Value
+                          
+                         
+                End If
+                
+               
+               
+            
+            Next i
+   
+    
+    Next sht
+    
+    
+MsgBox "File Processing Complete"
+End Sub
